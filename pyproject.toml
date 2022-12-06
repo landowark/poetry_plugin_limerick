@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "poetry-plugin-limerick"
+version = "0.1.1"
+description = ""
+authors = ["landowark <lando.wark@gmail.com>"]
+readme = "README.md"
+packages = [{include = "poetry_plugin_limerick"}]
+
+
+[tool.poetry.dependencies]
+python = "^3.10"
+poetry = "1.2.1"
+cookiecutter = "^2.1"
+
+
+[tool.poetry.group.dev.dependencies]
+toml = "^0.10.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry.plugins."poetry.application.plugin"]
+limerick = "poetry_plugin_limerick.plugins:LimerickApplicationPlugin"
