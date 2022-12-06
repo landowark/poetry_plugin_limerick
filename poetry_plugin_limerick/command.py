@@ -7,6 +7,9 @@ from cleo.helpers import option, argument
 from packaging.utils import canonicalize_name
 from poetry.console.commands.group_command import GroupCommand
 from poetry.core.packages.dependency_group import MAIN_GROUP
+from poetry.core.pyproject.toml import PyProjectTOML
+from poetry.factory import Factory
+
 
 from poetry_plugin_limerick.cc import Cutter
 
@@ -51,3 +54,6 @@ class LimerickCommand(GroupCommand):
         print(f"Hello from LimerickCommand v{self.version}")
         print(f"I got arguments: {cc_file}")
         print(f"Everything else: {self.__dict__}")
+        poetry_file = Factory.locate(Path.cwd())
+        config = PyProjectTOML(poetry_file).poetry_config
+        print(f"And here's the info about your project: {config}")
