@@ -19,26 +19,68 @@ class LimerickCommand(GroupCommand):
     name = "limerick"
     description = "Creates boilerplate files using cookiecutter."
     version = toml.load(toml_file)['tool']['poetry']['version']
-    # options = [
-    #     option(
-    #         "format",
-    #         "f",
-    #         "Format to export to. Currently, only constraints.txt and requirements.txt"
-    #         " are supported.",
-    #         flag=False,
-    #         # default=Exporter.FORMAT_REQUIREMENTS_TXT,
-    #     ),
-    #     *GroupCommand._group_dependency_options(),
-    #     option(
-    #         "extras",
-    #         "E",
-    #         "Extra sets of dependencies to include.",
-    #         flag=False,
-    #         multiple=True,
-    #     ),
-    #     ]
+    options = [
+        option(
+            "checkout",
+            "c",
+            "The branch, tag or commit ID to checkout after clone.",
+            flag=False,
+            # default=Exporter.FORMAT_REQUIREMENTS_TXT,
+        ),
+        *GroupCommand._group_dependency_options(),
+        option(
+            "no-input",
+            "i",
+            "Prompt the user at command line for manual configuration?",
+            flag=True,
+        ),
+        option(
+            "extra-content",
+            "e",
+            "A dictionary of context that overrides default and user configuration.",
+            flag=False,
+        ),
+        option(
+            "replay",
+            "r",
+            " Do not prompt for input, instead read from saved json. If \
+            ``True`` read from the ``replay_dir``. \
+            if it exists",
+            flag=True,
+        ),
+        option(
+            "config-file",
+            "x",
+            "User configuration file path.",
+            flag=False,
+        ),
+        option(
+            "default_config",
+            "d",
+            "Use default values rather than a config file.",
+            flag=True,
+        ),
+        option(
+            "password",
+            "p",
+            "The password to use when extracting the repository.",
+            flag=False,
+        ),
+        option(
+            "directory", 
+            "b",
+            "Relative path to a cookiecutter template in a repository.",
+            flag=False,            
+        ),
+        option(
+            "deny-hooks", 
+            None,
+            "Accept pre and post hooks if set to `True`.",
+            flag=True,
+        ),
+        ]
 
-    arguments = [argument(name="main_arg")]
+    arguments = [argument(name="template"), argument(name="output_dir", optional=True, default=".")]
 
     @property
     def non_optional_groups(self) -> set[str]:
@@ -50,10 +92,13 @@ class LimerickCommand(GroupCommand):
         return {MAIN_GROUP}
 
     def handle(self) -> None:
-        cc_file = self.argument("main_arg")
         print(f"Hello from LimerickCommand v{self.version}")
-        print(f"I got arguments: {cc_file}")
-        print(f"Everything else: {self.__dict__}")
+        opts = {opt.name:self.option(opt.name) for opt in self.options}
+        args = {arg.name:self.argument(arg.name) for arg in self.arguments}
+        # print(f"I got arguments: {self.arguments.__dict__}")
+        # print(f"I got options: {self.options.__dict__}")
+        print(f"I got arguments: {args}")
+        print(f"I got options: {opts}")
         poetry_file = Factory.locate(Path.cwd())
         config = PyProjectTOML(poetry_file).poetry_config
         print(f"And here's the info about your project: {config}")
