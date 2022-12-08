@@ -1,20 +1,29 @@
 [tool.poetry]
 name = "poetry-plugin-limerick"
 version = "0.1.1"
-description = ""
+description = "Plug cookiecutter into poetry!"
 authors = ["landowark <lando.wark@gmail.com>"]
 readme = "README.md"
-packages = [{include = "poetry_plugin_limerick"}]
+packages = [
+            { include = "poetry_plugin_limerick" },
+            { include = "poetry_plugin_limerick/cookiecutter" },
+        ]
 
 
 [tool.poetry.dependencies]
 python = "^3.10"
-poetry = "1.2.1"
-cookiecutter = "^2.1"
+binaryornot = "^0.4.4"
+Jinja2 = "^3"
+click = "^8"
+pyyaml = "^5.3.1"
+jinja2-time = "^0.2.0"
+python-slugify = "^4.0.0"
+requests = "^2.23.0"
 
 
 [tool.poetry.group.dev.dependencies]
 toml = "^0.10.2"
+poetry = "^1.2"
 
 [build-system]
 requires = ["poetry-core"]

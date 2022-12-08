@@ -7,18 +7,19 @@ from cleo.helpers import option, argument
 from packaging.utils import canonicalize_name
 from poetry.console.commands.group_command import GroupCommand
 from poetry.core.packages.dependency_group import MAIN_GROUP
-from poetry.core.pyproject.toml import PyProjectTOML
-from poetry.factory import Factory
 
+from .tools import Struct
+from .limerick.main import Limerick
 
 from poetry_plugin_limerick.cc import Cutter
 
 toml_file = Path(__file__).absolute().parent.parent.joinpath("pyproject.toml")
 
+
+
 class LimerickCommand(GroupCommand):
     name = "limerick"
     description = "Creates boilerplate files using cookiecutter."
-    version = toml.load(toml_file)['tool']['poetry']['version']
     options = [
         option(
             "checkout",
@@ -49,13 +50,19 @@ class LimerickCommand(GroupCommand):
             flag=True,
         ),
         option(
+            "overwrite",
+            "o",
+            "Overwrite if exists.",
+            flag=True,
+        ),
+        option(
             "config-file",
             "x",
             "User configuration file path.",
             flag=False,
         ),
         option(
-            "default_config",
+            "default-config",
             "d",
             "Use default values rather than a config file.",
             flag=True,
@@ -71,6 +78,12 @@ class LimerickCommand(GroupCommand):
             "b",
             "Relative path to a cookiecutter template in a repository.",
             flag=False,            
+        ),
+        option(
+            "skip",
+            "s",
+            "Skip if exists",
+            flag=True,
         ),
         option(
             "deny-hooks", 
@@ -92,13 +105,9 @@ class LimerickCommand(GroupCommand):
         return {MAIN_GROUP}
 
     def handle(self) -> None:
-        print(f"Hello from LimerickCommand v{self.version}")
-        opts = {opt.name:self.option(opt.name) for opt in self.options}
+        print(f"Hello from LimerickCommand v{self.poetry.local_config['version']}")
         args = {arg.name:self.argument(arg.name) for arg in self.arguments}
-        # print(f"I got arguments: {self.arguments.__dict__}")
-        # print(f"I got options: {self.options.__dict__}")
-        print(f"I got arguments: {args}")
-        print(f"I got options: {opts}")
-        poetry_file = Factory.locate(Path.cwd())
-        config = PyProjectTOML(poetry_file).poetry_config
-        print(f"And here's the info about your project: {config}")
+        opts = {opt.name.replace("-", "_"):self.option(opt.name) for opt in self.options}
+        opts['allow_hooks'] = not opts.pop('deny_hooks')
+        opts = args | opts
+        limerick = Limerick(**opts)
