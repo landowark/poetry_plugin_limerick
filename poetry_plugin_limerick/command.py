@@ -36,7 +36,7 @@ class LimerickCommand(GroupCommand):
             flag=True,
         ),
         option(
-            "extra-content",
+            "extra-context",
             "e",
             "A dictionary of context that overrides default and user configuration.",
             flag=False,
@@ -110,4 +110,6 @@ class LimerickCommand(GroupCommand):
         opts = {opt.name.replace("-", "_"):self.option(opt.name) for opt in self.options}
         opts['allow_hooks'] = not opts.pop('deny_hooks')
         opts = args | opts
+        print(opts)
         limerick = Limerick(**opts)
+        limerick.compose()

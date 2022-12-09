@@ -14,7 +14,7 @@ from cleo.io.io import IO
 from poetry.core.packages.dependency_group import MAIN_GROUP
 
 from .tools import Struct
-
+from .limerick.main import Limerick
 
 if TYPE_CHECKING:
     from pathlib import Path
