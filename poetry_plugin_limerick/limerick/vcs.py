@@ -106,15 +106,15 @@ def clone(
         try:
             # subprocess.check_output([repo_type, 'clone', repo_url], cwd=clone_to_dir, stderr=subprocess.STDOUT,)
             if checkout is not None:
-                checkout_params = [checkout]
+                checkout_params = checkout
                 # Avoid Mercurial "--config" and "--debugger" injection vulnerability
                 if repo_type == "hg":
                     checkout_params.insert(0, "--")
                 # subprocess.check_output([repo_type, 'checkout', *checkout_params], cwd=repo_dir, stderr=subprocess.STDOUT,)
             else: 
                 checkout_params = None
-            result = prc.clone(repo_url, target=repo_dir)
-            logger.debug(f"Result of porcelain pull: {result}")
+            prc.clone(repo_url, target=repo_dir, checkout=True, branch=checkout)
+            # logger.debug(f"Result of porcelain pull: {result}")
                 
         except subprocess.CalledProcessError as clone_error:
             output = clone_error.output.decode('utf-8')

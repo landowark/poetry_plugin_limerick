@@ -6,7 +6,7 @@ authors = ["landowark <lando.wark@gmail.com>"]
 readme = "README.md"
 packages = [
             { include = "poetry_plugin_limerick" },
-            { include = "poetry_plugin_limerick/cookiecutter" },
+            { include = "poetry_plugin_limerick/limerick" },
         ]
 
 

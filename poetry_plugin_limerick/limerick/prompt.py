@@ -18,6 +18,7 @@ def read_user_variable(var_name, default_value):
     :param str var_name: Variable of the context to query the user
     :param default_value: Value that will be returned if no input happens
     """
+    click.echo("")
     return click.prompt(var_name, default=default_value)
 
 
@@ -35,6 +36,7 @@ def read_user_yes_no(question, default_value):
     :param str question: Question to the user
     :param default_value: Value that will be returned if no input happens
     """
+    click.echo("")
     return click.prompt(question, default=default_value, type=click.BOOL)
 
 
@@ -234,18 +236,24 @@ def prompt_for_config(context:dict, no_input:bool=False, toml_config:dict={}, ov
         # Skip private type dicts not to be rendered.
         if key.startswith('_') and not key.startswith('__'):
             continue
+        if key in toml_config and not override_toml:
+            try:
+                cookiecutter_dict[key] = render_variable(env, toml_config[key], cookiecutter_dict)
+            except UndefinedError as err:
+                msg = f"Unable to render variable '{key}'"
+                raise UndefinedVariableInTemplate(msg, err, context) from err
+        else:
+            try:
+                if isinstance(raw, dict):
+                    # We are dealing with a dict variable
+                    val = render_variable(env, raw, cookiecutter_dict)
 
-        try:
-            if isinstance(raw, dict):
-                # We are dealing with a dict variable
-                val = render_variable(env, raw, cookiecutter_dict)
+                    if not no_input and not key.startswith('__'):
+                        val = read_user_dict(key, val)
 
-                if not no_input and not key.startswith('__'):
-                    val = read_user_dict(key, val)
-
-                cookiecutter_dict[key] = val
-        except UndefinedError as err:
-            msg = f"Unable to render variable '{key}'"
-            raise UndefinedVariableInTemplate(msg, err, context) from err
+                    cookiecutter_dict[key] = val
+            except UndefinedError as err:
+                msg = f"Unable to render variable '{key}'"
+                raise UndefinedVariableInTemplate(msg, err, context) from err
 
     return cookiecutter_dict
