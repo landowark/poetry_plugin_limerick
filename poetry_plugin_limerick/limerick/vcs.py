@@ -61,7 +61,7 @@ def is_vcs_installed(repo_type):
 def clone(
     repo_url: str,
     checkout: Optional[str] = None,
-    clone_to_dir: "os.PathLike[str]" = ".",
+    clone_to_dir: Path = Path("."),
     no_input: bool = False,
 ):
     """Clone a repo to the current directory.
@@ -113,7 +113,7 @@ def clone(
                 # subprocess.check_output([repo_type, 'checkout', *checkout_params], cwd=repo_dir, stderr=subprocess.STDOUT,)
             else: 
                 checkout_params = None
-            result = prc.clone(repo_url, target=repo_dir, checkout=checkout_params)
+            result = prc.clone(repo_url, target=repo_dir)
             logger.debug(f"Result of porcelain pull: {result}")
                 
         except subprocess.CalledProcessError as clone_error:

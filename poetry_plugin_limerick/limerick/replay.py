@@ -4,19 +4,20 @@ cookiecutter.replay.
 -------------------
 """
 import json
-import os
-
+import logging
+from pathlib import Path
 from .utils import make_sure_path_exists
 
+logger = logging.getLogger(__name__)
 
-def get_file_name(replay_dir, template_name):
+def get_file_name(replay_dir:Path, template_name):
     """Get the name of file."""
     suffix = '.json' if not template_name.endswith('.json') else ''
     file_name = f'{template_name}{suffix}'
-    return os.path.join(replay_dir, file_name)
+    return replay_dir.joinpath(file_name)
 
 
-def dump(replay_dir: "os.PathLike[str]", template_name: str, context: dict):
+def dump(replay_dir: Path, template_name: str, context: dict):
     """Write json data to file."""
     make_sure_path_exists(replay_dir)
 
@@ -30,7 +31,7 @@ def dump(replay_dir: "os.PathLike[str]", template_name: str, context: dict):
         raise ValueError('Context is required to contain a cookiecutter key')
 
     replay_file = get_file_name(replay_dir, template_name)
-
+    logger.debug(f"Context: {context}")
     with open(replay_file, 'w') as outfile:
         json.dump(context, outfile, indent=2)
 

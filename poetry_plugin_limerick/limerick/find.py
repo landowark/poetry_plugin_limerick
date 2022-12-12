@@ -17,8 +17,9 @@ def find_template(repo_dir:Path) -> Path:
     logger.debug(f'Searching {repo_dir} for the project template.')
 
     for str_path in repo_dir.glob("**/*"):
-        if 'cookiecutter' in str_path and '{{' in str_path and '}}' in str_path:
-            project_template = Path(repo_dir, str_path)
+        logger.debug(f"str_path: {str_path}")
+        if 'cookiecutter' in str_path.__str__() and '{{' in str_path.__str__() and '}}' in str_path.__str__():
+            project_template = repo_dir.joinpath(str_path)
             break
     else:
         raise NonTemplatedInputDirException

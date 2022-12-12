@@ -8,6 +8,7 @@ from packaging.utils import canonicalize_name
 from poetry.console.commands.group_command import GroupCommand
 from poetry.core.packages.dependency_group import MAIN_GROUP
 
+
 from .tools import Struct
 from .limerick.main import Limerick
 
@@ -50,9 +51,9 @@ class LimerickCommand(GroupCommand):
             flag=True,
         ),
         option(
-            "overwrite",
+            "overwrite-if-exists",
             "o",
-            "Overwrite if exists.",
+            "Overwrite the contents of the output directory if it exists.",
             flag=True,
         ),
         option(
@@ -80,15 +81,27 @@ class LimerickCommand(GroupCommand):
             flag=False,            
         ),
         option(
-            "skip",
+            "skip-if-file-exists",
             "s",
-            "Skip if exists",
+            "Skip the files in the corresponding directories if they already exist",
             flag=True,
         ),
         option(
             "deny-hooks", 
             None,
-            "Accept pre and post hooks if set to `True`.",
+            "Don't run pre and post hooks if set to `True`.",
+            flag=True,
+        ),
+        option(
+            "override-toml",
+            "t",
+            "Use user input instead of pyproject.toml",
+            flag=True,
+        ),
+        option(
+            "keep-project-on-failure",
+            "k", 
+            "If `True` keep generated project directory even when generation fails",
             flag=True,
         ),
         ]
@@ -108,8 +121,9 @@ class LimerickCommand(GroupCommand):
         print(f"Hello from LimerickCommand v{self.poetry.local_config['version']}")
         args = {arg.name:self.argument(arg.name) for arg in self.arguments}
         opts = {opt.name.replace("-", "_"):self.option(opt.name) for opt in self.options}
+        # 
         opts['allow_hooks'] = not opts.pop('deny_hooks')
         opts = args | opts
         print(opts)
-        limerick = Limerick(**opts)
+        limerick = Limerick(self.poetry, self.io, **opts)
         limerick.compose()

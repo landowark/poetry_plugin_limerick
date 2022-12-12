@@ -2,6 +2,7 @@
 import functools
 import json
 from collections import OrderedDict
+import logging
 
 import click
 from jinja2.exceptions import UndefinedError
@@ -9,6 +10,7 @@ from jinja2.exceptions import UndefinedError
 from .environment import StrictEnvironment
 from .exceptions import UndefinedVariableInTemplate
 
+logger = logging.getLogger(__name__)
 
 def read_user_variable(var_name, default_value):
     """Prompt user for variable and return the entered value or given default.
@@ -173,7 +175,7 @@ def prompt_choice_for_config(cookiecutter_dict, env, key, options, no_input):
     return read_user_choice(key, rendered_options)
 
 
-def prompt_for_config(context:dict, no_input:bool=False):
+def prompt_for_config(context:dict, no_input:bool=False, toml_config:dict={}, override_toml:bool=False):
     """Prompt user to enter a new config.
 
     :param dict context: Source for field names and sample values.
@@ -192,33 +194,40 @@ def prompt_for_config(context:dict, no_input:bool=False):
         elif key.startswith('__'):
             cookiecutter_dict[key] = render_variable(env, raw, cookiecutter_dict)
             continue
-
-        try:
-            if isinstance(raw, list):
-                # We are dealing with a choice variable
-                val = prompt_choice_for_config(
-                    cookiecutter_dict, env, key, raw, no_input
-                )
-                cookiecutter_dict[key] = val
-            elif isinstance(raw, bool):
-                # We are dealing with a boolean variable
-                if no_input:
-                    cookiecutter_dict[key] = render_variable(
-                        env, raw, cookiecutter_dict
+        logger.debug(f"Key: {key}")
+        if key in toml_config and not override_toml:
+            try:
+                cookiecutter_dict[key] = render_variable(env, toml_config[key], cookiecutter_dict)
+            except UndefinedError as err:
+                msg = f"Unable to render variable '{key}'"
+                raise UndefinedVariableInTemplate(msg, err, context) from err
+        else:
+            try:
+                if isinstance(raw, list):
+                    # We are dealing with a choice variable
+                    val = prompt_choice_for_config(
+                        cookiecutter_dict, env, key, raw, no_input
                     )
-                else:
-                    cookiecutter_dict[key] = read_user_yes_no(key, raw)
-            elif not isinstance(raw, dict):
-                # We are dealing with a regular variable
-                val = render_variable(env, raw, cookiecutter_dict)
+                    cookiecutter_dict[key] = val
+                elif isinstance(raw, bool):
+                    # We are dealing with a boolean variable
+                    if no_input:
+                        cookiecutter_dict[key] = render_variable(
+                            env, raw, cookiecutter_dict
+                        )
+                    else:
+                        cookiecutter_dict[key] = read_user_yes_no(key, raw)
+                elif not isinstance(raw, dict):
+                    # We are dealing with a regular variable
+                    val = render_variable(env, raw, cookiecutter_dict)
 
-                if not no_input:
-                    val = read_user_variable(key, val)
+                    if not no_input:
+                        val = read_user_variable(key, val)
 
-                cookiecutter_dict[key] = val
-        except UndefinedError as err:
-            msg = f"Unable to render variable '{key}'"
-            raise UndefinedVariableInTemplate(msg, err, context) from err
+                    cookiecutter_dict[key] = val
+            except UndefinedError as err:
+                msg = f"Unable to render variable '{key}'"
+                raise UndefinedVariableInTemplate(msg, err, context) from err
 
     # Second pass; handle the dictionaries.
     for key, raw in context['cookiecutter'].items():

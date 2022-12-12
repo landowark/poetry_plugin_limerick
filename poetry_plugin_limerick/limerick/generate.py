@@ -292,12 +292,13 @@ def generate_files(
         generation fails
     """
     template_dir = find_template(repo_dir)
-    logger.debug('Generating project from %s...', template_dir)
+    logger.debug(f'Generating project from {template_dir}...')
     context = context or OrderedDict([])
 
     envvars = context.get('cookiecutter', {}).get('_jinja2_env_vars', {})
 
-    unrendered_dir = os.path.split(template_dir)[1]
+    unrendered_dir = template_dir.name
+    logger.debug(f"Unrendered dir: {unrendered_dir}")
     ensure_dir_is_templated(unrendered_dir)
     env = StrictEnvironment(context=context, keep_trailing_newline=True, **envvars)
     try:
