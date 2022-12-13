@@ -1,22 +1,11 @@
 from __future__ import annotations
 
-from pathlib import Path
-import toml
-
 from cleo.helpers import option, argument
-from packaging.utils import canonicalize_name
+# from packaging.utils import canonicalize_name
 from poetry.console.commands.group_command import GroupCommand
 from poetry.core.packages.dependency_group import MAIN_GROUP
 
-
-from .tools import Struct
 from .limerick.main import Limerick
-
-from poetry_plugin_limerick.cc import Cutter
-
-toml_file = Path(__file__).absolute().parent.parent.joinpath("pyproject.toml")
-
-
 
 class LimerickCommand(GroupCommand):
     name = "limerick"
@@ -121,7 +110,6 @@ class LimerickCommand(GroupCommand):
         print(f"Hello from LimerickCommand v{self.poetry.local_config['version']}")
         args = {arg.name:self.argument(arg.name) for arg in self.arguments}
         opts = {opt.name.replace("-", "_"):self.option(opt.name) for opt in self.options}
-        # 
         opts['accept_hooks'] = not opts.pop('deny_hooks')
         opts = args | opts
         print(opts)
