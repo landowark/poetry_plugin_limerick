@@ -93,7 +93,7 @@ class Limerick:
                 overwrite_if_exists=self.overwrite_if_exists,
                 skip_if_file_exists=self.skip_if_file_exists,
                 output_dir=self.output_dir,
-                accept_hooks=False, #self.accept_hooks,
+                accept_hooks=self.accept_hooks,
                 keep_project_on_failure=self.keep_project_on_failure,
             )
 
