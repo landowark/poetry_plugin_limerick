@@ -122,7 +122,7 @@ class LimerickCommand(GroupCommand):
         args = {arg.name:self.argument(arg.name) for arg in self.arguments}
         opts = {opt.name.replace("-", "_"):self.option(opt.name) for opt in self.options}
         # 
-        opts['allow_hooks'] = not opts.pop('deny_hooks')
+        opts['accept_hooks'] = not opts.pop('deny_hooks')
         opts = args | opts
         print(opts)
         limerick = Limerick(self.poetry, self.io, **opts)
